@@ -1,0 +1,51 @@
+RewriteEngine On
+
+# Redirecionar para HTTPS se necessário (descomente se quiser usar)
+# RewriteCond %{SERVER_PORT} 80
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
+
+RewriteBase /
+
+# Regras para a API
+RewriteRule ^api/(.*)$ api/v1/api.php [QSA,L]
+
+RewriteRule  ^playfiver/webhook		callback/playfiver.php	 		 [NC,L]
+
+# Se o arquivo ou diretório não existir, redirecione para o index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+
+# Regras adicionais para segurança e configuração
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Anti- Clickjacking                                                  |
+# ----------------------------------------------------------------------
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|htm)$">
+        Header set X-Frame-Options "DENY"
+    </FilesMatch>
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Negando acesso aos diretórios                                       |
+# ---------------------------------------------------------------------
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Bloqueando arquivos sensíveis                                       |
+# ----------------------------------------------------------------------
+<FilesMatch "(^#.*#|\.(bak|conf|dist|fla|in[ci]|log|psd|sh|sql|sw[op])|~)$">
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+        Satisfy All
+    </IfModule>
+</FilesMatch>
